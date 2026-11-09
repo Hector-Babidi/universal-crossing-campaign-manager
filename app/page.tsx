@@ -116,22 +116,30 @@ export default function Home() {
       }
     }
 
-    const fields =
-      userRole === 'master'
-        ? 'id,name,player_name,character_class,level,experience'
-        : 'id,name,player_name,character_class,level';
+    if (userRole === 'master') {
+  const { data, error } = await client
+    .from('characters')
+    .select('id,name,player_name,character_class,level,experience')
+    .order('created_at', { ascending: false });
 
-    const { data: characterData, error: characterError } =
-      await client
-        .from('characters')
-        .select(fields)
-        .order('created_at', { ascending: false });
+  if (error) {
+    setMessage(error.message);
+    setError(true);
+  } else {
+    setCharacters((data || []) as Character[]);
+  }
+} else {
+  const { data, error } = await client
+    .from('characters')
+    .select('id,name,player_name,character_class,level')
+    .order('created_at', { ascending: false });
 
-    if (characterError) {
-      setMessage(characterError.message);
-      setError(true);
-    } else {
-      setCharacters(characterData || []);
+  if (error) {
+    setMessage(error.message);
+    setError(true);
+  } else {
+    setCharacters((data || []) as Character[]);
+  }
     }
   }
 
